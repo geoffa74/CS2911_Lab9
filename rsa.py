@@ -8,10 +8,9 @@
 #: 
 #: | Team members (username) |
 #: |:------------------------|
-#: | Grace Hopper (hopperg)  |
-#: | Donald Knuth (knuthd)   |
+#: | Jon Sonderman (sondermanjj)  |
+#: | Geoff AppelBaum (appelbaumgl)   |
 #: 
-# If you are curious about the names above, look them up!
 
 import random
 import sys
@@ -245,8 +244,19 @@ def break_key(pub):
     pass  # Delete this line and complete this method
 
 
-# Your code and additional functions go here. (Replace this line.)
-
+def is_prime(n):
+  if n == 2 or n == 3: return True
+  if n < 2 or n%2 == 0: return False
+  if n < 9: return True
+  if n%3 == 0: return False
+  r = int(n**0.5)
+  f = 5
+  while f <= r:
+    print('\t',f)
+    if n%f == 0: return False
+    if n%(f+2) == 0: return False
+    f +=6
+  return True
 # ** Do not modify code below this line.
 
 #
