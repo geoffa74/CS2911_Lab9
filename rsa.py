@@ -14,6 +14,8 @@
 
 import random
 import sys
+import time
+
 
 # Use these named constants as you write your code
 MAX_PRIME = 0b11111111  # The maximum value a prime number can have
@@ -213,8 +215,24 @@ def compute_checksum(string):
 #  (e,d,n)
 #
 def create_keys():
-    pass  # Delete this line and complete this method
 
+    #Generate the random p and q so that it is a prime, (p-1)%e != 0, and it is between the min and max
+    p = 4
+    q = 4
+    while((not is_prime(p)) or ((p-1)%PUBLIC_EXPONENT) == 0):
+        p = random.randint(int(MIN_PRIME), int(MAX_PRIME))
+
+    while ((not is_prime(q)) or ((q - 1) % PUBLIC_EXPONENT) == 0 or q == p):
+        q = random.randint(int(MIN_PRIME), int(MAX_PRIME))
+
+    #Calculate the modulues n and totient z
+    n = p*q
+    z = (p-1)*(q-1)
+    d = 1
+    while ((d*PUBLIC_EXPONENT)%z != 1):
+        d += 1
+
+    return (PUBLIC_EXPONENT, d, n)
 
 #
 # Apply the key, given as a tuple (e,n) or (d,n) to the message.
@@ -226,8 +244,9 @@ def create_keys():
 # and returns the ciphertext.
 #
 def apply_key(key, m):
-    pass  # Delete this line and complete this method
 
+    message = (m ** key[0])%key[1]
+    return message
 
 #
 # Break a key.  Given the public key, find the private key.
@@ -241,8 +260,31 @@ def apply_key(key, m):
 # returns a tuple containing the private key (d,n)
 #
 def break_key(pub):
-    pass  # Delete this line and complete this method
+    start = time.time()
+    n = pub[1]
+    p = 1
+    q = 1
 
+    #Brute force attack n, finding the original p and q
+    primes = primes_sieve1(n)
+    for first in primes:
+        p = first
+        for second in primes:
+            q = second
+            if (p*q == n):
+                break
+        if (p*q == n):
+            break
+
+    end = time.time()
+    endtime = end - start
+    print("Time to break: "+str(endtime) + " seconds")
+    print();
+    z = (p - 1) * (q - 1)
+    d = 1
+    while ((d * PUBLIC_EXPONENT) % z != 1):
+        d += 1
+    return (d,n)
 
 def is_prime(n):
   if n == 2 or n == 3: return True
@@ -252,11 +294,22 @@ def is_prime(n):
   r = int(n**0.5)
   f = 5
   while f <= r:
-    print('\t',f)
     if n%f == 0: return False
     if n%(f+2) == 0: return False
     f +=6
   return True
+
+def primes_sieve1(limit):
+    limitn = limit+1
+    primes = dict()
+    for i in range(2, limitn): primes[i] = True
+
+    for i in primes:
+        factors = range(i,limitn, i)
+        for f in factors[1:]:
+            primes[f] = False
+    return [i for i in primes if primes[i]==True]
+
 # ** Do not modify code below this line.
 
 #
@@ -265,7 +318,6 @@ def is_prime(n):
 #
 def get_public_key(key_pair):
     return (key_pair[0], key_pair[2])
-
 
 #
 # Pulls the private key out of the tuple structure created by
