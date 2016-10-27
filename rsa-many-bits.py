@@ -1,26 +1,29 @@
 # coding=utf-8
 
 #: ## Lab 9 ##
-#: 
-#: CS-2910 Network Protocols  
-#: Dr. Yoder 
+#:
+#: CS-2910 Network Protocols
+#: Dr. Yoder
 #: Fall quarter 2016-2017
-#: 
+#:
 #: | Team members (username) |
 #: |:------------------------|
-#: | Jon Sonderman (sondermanjj)  |
-#: | Geoff AppelBaum (appelbaumgl)   |
-#: 
+#: | Grace Hopper (hopperg)  |
+#: | Donald Knuth (knuthd)   |
+#:
+# If you are curious about the names above, look them up!
 
 import random
 import sys
 import time
+import math
 
-
-# Use these named constants as you write your code
-MAX_PRIME = 0b11111111  # The maximum value a prime number can have
-MIN_PRIME = 0b11000001  # The minimum value a prime number can have 
-PUBLIC_EXPONENT = 65537  # The default public exponent
+BITS_PER_HEX_DIGIT = 4 # binary digits per hex digit -- always 4
+BIT_LENGTH = 8  # "B" in the lab handout. Length of n in bits
+HEX_LENGTH = BIT_LENGTH/BITS_PER_HEX_DIGIT # Length of n in hexadecimal digits
+MAX_PRIME = 0b11111111111111  # The maximum value a prime number can have
+MIN_PRIME = 0b11110000000001  # The minimum value a prime number can have
+PUBLIC_EXPONENT = 17  # The default public exponent
 
 
 #
@@ -71,16 +74,16 @@ def create_keys_interactive():
 
 #
 # Compute the checksum for a message, and encrypt it
-#  
+#
 def compute_checksum_interactive():
     priv = create_keys_interactive()
 
     message = input('Please enter the message to be checksummed: ')
 
     hash = compute_checksum(message)
-    print('Hash:', "{0:04x}".format(hash))
-    cypher = apply_key(priv, hash)
-    print('Encrypted Hash:', "{0:04x}".format(cypher))
+    print('Hash:',as_hex(hash))
+    cipher = apply_key(priv, hash)
+    print('Encrypted Hash:', as_hex(cipher))
 
 
 #
@@ -94,8 +97,8 @@ def verify_checksum_interactive():
     string_hash = input('Please enter the encrypted hash (in hexadecimal): ')
     encrypted_hash = int(string_hash, 16)
     decrypted_hash = apply_key(pub, encrypted_hash)
-    print('Recomputed hash:', "{0:04x}".format(recomputed_hash))
-    print('Decrypted hash: ', "{0:04x}".format(decrypted_hash))
+    print('Recomputed hash:', as_hex(format(recomputed_hash)))
+    print('Decrypted hash: ', as_hex(format(decrypted_hash)))
     if recomputed_hash == decrypted_hash:
         print('Hashes match -- message is verified')
     else:
@@ -110,24 +113,24 @@ def encrypt_message_interactive():
     pub = enter_public_key_interactive()
     encrypted = ''
     for c in message:
-        encrypted += "{0:04x}".format(apply_key(pub, ord(c)))
+        encrypted += apply_key(pub,ord(c))
     print("Encrypted message:", encrypted)
 
 
 #
 # Decrypt a message
 #
-def decrypt_message_interactive(priv=None):
+def decrypt_message_interactive(priv = None):
     encrypted = input('Please enter the message to be decrypted: ')
     if priv is None:
         priv = enter_key_interactive('private')
     message = ''
-    for i in range(0, len(encrypted), 4):
-        enc_string = encrypted[i:i + 4]
-        enc = int(enc_string, 16)
-        dec = apply_key(priv, enc)
+    for i in range(0,len(encrypted),HEX_LENGTH):
+        enc_string = encrypted[i:i+HEX_LENGTH]
+        enc = int(enc_string,16)
+        dec = apply_key(priv,enc)
         if dec >= 0 and dec < 256:
-            message += chr(apply_key(priv, enc))
+            message += chr(dec)
         else:
             print('Warning: Could not decode encrypted entity: ' + enc_string)
             print('         decrypted as: ' + str(dec) + ' which is out of range.')
@@ -151,7 +154,7 @@ def break_key_interactive():
 # Prompt user to enter the public modulus.
 #
 # returns the tuple (e,n)
-#    
+#
 def enter_public_key_interactive():
     print('(Using public exponent = ' + str(PUBLIC_EXPONENT) + ')')
     string_modulus = input('Please enter the modulus (decimal): ')
@@ -166,7 +169,7 @@ def enter_public_key_interactive():
 #            this key is interpretted by the program.
 #
 # returns the tuple (e,n)
-#    
+#
 def enter_key_interactive(key_type):
     string_exponent = input('Please enter the ' + key_type + ' exponent (decimal): ')
     exponent = int(string_exponent)
@@ -189,7 +192,7 @@ def enter_key_interactive(key_type):
 # packets, but it is a two's complement sum rather than a one's
 # complement sum.
 #
-# Returns the checksum as an integer 
+# Returns the checksum as an integer
 #
 def compute_checksum(string):
     total = 0
@@ -206,7 +209,6 @@ def compute_checksum(string):
 # ---------------------------------------
 # Do not modify code above this line
 # ---------------------------------------
-
 #
 # Create the public and private keys.
 #
@@ -238,7 +240,7 @@ def create_keys():
 # Apply the key, given as a tuple (e,n) or (d,n) to the message.
 #
 # This can be used both for encryption and decription.
-# 
+#
 # Returns the message with the key applied. For example,
 # if given the public key and a message, encrypts the message
 # and returns the ciphertext.
@@ -319,6 +321,7 @@ def primes_sieve1(limit):
 def get_public_key(key_pair):
     return (key_pair[0], key_pair[2])
 
+
 #
 # Pulls the private key out of the tuple structure created by
 # create_keys()
@@ -326,5 +329,14 @@ def get_public_key(key_pair):
 def get_private_key(key_pair):
     return (key_pair[1], key_pair[2])
 
+
+#
+# Convert integer to a zero-padded hex string with the required number
+# of characters to represent n, d, or and encrypted message.
+#
+# Returns: The formatted string
+#
+def as_hex(number):
+    return "{0:0"+str(HEX_LENGTH)+"x}".format(number)
 
 main()
