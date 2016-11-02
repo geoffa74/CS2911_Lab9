@@ -15,11 +15,11 @@
 
 import random
 import sys
-import time
 import math
+import numpy
 
 BITS_PER_HEX_DIGIT = 4 # binary digits per hex digit -- always 4
-BIT_LENGTH = 8  # "B" in the lab handout. Length of n in bits
+BIT_LENGTH = 16  # "B" in the lab handout. Length of n in bits
 HEX_LENGTH = BIT_LENGTH/BITS_PER_HEX_DIGIT # Length of n in hexadecimal digits
 MAX_PRIME = 0b11111111111111  # The maximum value a prime number can have
 MIN_PRIME = 0b11110000000001  # The minimum value a prime number can have
@@ -113,7 +113,7 @@ def encrypt_message_interactive():
     pub = enter_public_key_interactive()
     encrypted = ''
     for c in message:
-        encrypted += apply_key(pub,ord(c))
+        encrypted += "{0:04x}".format(apply_key(pub, ord(c)))
     print("Encrypted message:", encrypted)
 
 
@@ -125,12 +125,14 @@ def decrypt_message_interactive(priv = None):
     if priv is None:
         priv = enter_key_interactive('private')
     message = ''
-    for i in range(0,len(encrypted),HEX_LENGTH):
-        enc_string = encrypted[i:i+HEX_LENGTH]
+    for i in range(0,len(encrypted),int(HEX_LENGTH)):
+        print(i)
+        enc_string = encrypted[i:i+int(HEX_LENGTH)]
         enc = int(enc_string,16)
         dec = apply_key(priv,enc)
         if dec >= 0 and dec < 256:
             message += chr(dec)
+            print(message)
         else:
             print('Warning: Could not decode encrypted entity: ' + enc_string)
             print('         decrypted as: ' + str(dec) + ' which is out of range.')
@@ -209,6 +211,7 @@ def compute_checksum(string):
 # ---------------------------------------
 # Do not modify code above this line
 # ---------------------------------------
+
 #
 # Create the public and private keys.
 #
@@ -221,6 +224,9 @@ def create_keys():
     #Generate the random p and q so that it is a prime, (p-1)%e != 0, and it is between the min and max
     p = 4
     q = 4
+
+    primes = primesfrom2to(MAX_PRIME)
+    print(MIN_PRIME)
     while((not is_prime(p)) or ((p-1)%PUBLIC_EXPONENT) == 0):
         p = random.randint(int(MIN_PRIME), int(MAX_PRIME))
 
@@ -268,7 +274,7 @@ def break_key(pub):
     q = 1
 
     #Brute force attack n, finding the original p and q
-    primes = primes_sieve1(n)
+    primes = primesfrom2to(n)
     for first in primes:
         p = first
         for second in primes:
@@ -301,16 +307,14 @@ def is_prime(n):
     f +=6
   return True
 
-def primes_sieve1(limit):
-    limitn = limit+1
-    primes = dict()
-    for i in range(2, limitn): primes[i] = True
+def primesfrom3to(n):
+    """ Returns a array of primes, 3 <= p < n """
+    sieve = numpy.ones(n/2, dtype=numpy.bool)
+    for i in xrange(3,int(n**0.5)+1,2):
+        if sieve[i/2]:
+            sieve[i*i/2::i] = False
+    return 2*numpy.nonzero(sieve)[0][1::]+1
 
-    for i in primes:
-        factors = range(i,limitn, i)
-        for f in factors[1:]:
-            primes[f] = False
-    return [i for i in primes if primes[i]==True]
 
 # ** Do not modify code below this line.
 
