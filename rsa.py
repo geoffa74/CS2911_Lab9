@@ -167,7 +167,6 @@ def enter_public_key_interactive():
 #            this key is interpretted by the program.
 #
 # returns the tuple (e,n)
-#    
 def enter_key_interactive(key_type):
     string_exponent = input('Please enter the ' + key_type + ' exponent (decimal): ')
     exponent = int(string_exponent)
@@ -190,8 +189,8 @@ def enter_key_interactive(key_type):
 # packets, but it is a two's complement sum rather than a one's
 # complement sum.
 #
-# Returns the checksum as an integer 
-#
+# Returns the checksum as an integer
+# @Author: sondermanjj
 def compute_checksum(string):
     total = 0
     for c in string:
@@ -214,9 +213,8 @@ def compute_checksum(string):
 # Returns the keys as a three-tuple:
 #
 #  (e,d,n)
-#
+# @Author: appelbaumgl
 def create_keys():
-
     #Generate the random p and q so that it is a prime, (p-1)%e != 0, and it is between the min and max
     p = 4
     q = 4
@@ -245,7 +243,7 @@ def create_keys():
 # Returns the message with the key applied. For example,
 # if given the public key and a message, encrypts the message
 # and returns the ciphertext.
-#
+# @Author: appelbaumgl
 def apply_key(key, m):
 
     message = (m ** key[0])%key[1]
@@ -261,7 +259,7 @@ def apply_key(key, m):
 # pub - a tuple containing the public key (e,n)
 #
 # returns a tuple containing the private key (d,n)
-#
+# @Author: sondermanjj
 def break_key(pub):
     start = time.time()
     n = pub[1]
@@ -289,6 +287,9 @@ def break_key(pub):
         d += 1
     return (d,n)
 
+# Checks if a number is prime.
+# outputs: true or false
+# @Author: sondermanjj
 def is_prime(n):
   if n == 2 or n == 3: return True
   if n < 2 or n%2 == 0: return False
@@ -302,14 +303,14 @@ def is_prime(n):
     f +=6
   return True
 
+# finds a array of primes, 3 <= p < n
+# @Author: sondermanjj
 def primesfrom3to(n):
-    """ Returns a array of primes, 3 <= p < n """
     sieve = numpy.ones(round(n/2), dtype=numpy.bool)
     for i in range(3,int(n**0.5)+1,2):
         if sieve[round(i/2)]:
             sieve[round(i*i/2)::i] = False
     return 2*numpy.nonzero(sieve)[0][1::]+1
-
 
 # ** Do not modify code below this line.
 

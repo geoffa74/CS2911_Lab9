@@ -198,6 +198,7 @@ def enter_key_interactive(key_type):
 # Returns the checksum as an integer
 #
 def compute_checksum(string):
+    print(ord())
     total = 0
     for c in string:
         total += ord(c)
