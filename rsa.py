@@ -15,6 +15,7 @@
 import random
 import sys
 import time
+import numpy
 
 
 # Use these named constants as you write your code
@@ -219,6 +220,8 @@ def create_keys():
     #Generate the random p and q so that it is a prime, (p-1)%e != 0, and it is between the min and max
     p = 4
     q = 4
+
+    primes = primesfrom3to(MAX_PRIME)
     while((not is_prime(p)) or ((p-1)%PUBLIC_EXPONENT) == 0):
         p = random.randint(int(MIN_PRIME), int(MAX_PRIME))
 
@@ -238,7 +241,7 @@ def create_keys():
 # Apply the key, given as a tuple (e,n) or (d,n) to the message.
 #
 # This can be used both for encryption and decription.
-# 
+#
 # Returns the message with the key applied. For example,
 # if given the public key and a message, encrypts the message
 # and returns the ciphertext.
@@ -266,7 +269,7 @@ def break_key(pub):
     q = 1
 
     #Brute force attack n, finding the original p and q
-    primes = primes_sieve1(n)
+    primes = primesfrom2to(n)
     for first in primes:
         p = first
         for second in primes:
@@ -299,16 +302,14 @@ def is_prime(n):
     f +=6
   return True
 
-def primes_sieve1(limit):
-    limitn = limit+1
-    primes = dict()
-    for i in range(2, limitn): primes[i] = True
+def primesfrom3to(n):
+    """ Returns a array of primes, 3 <= p < n """
+    sieve = numpy.ones(n/2, dtype=numpy.bool)
+    for i in range(3,int(n**0.5)+1,2):
+        if sieve[i/2]:
+            sieve[i*i/2::i] = False
+    return 2*numpy.nonzero(sieve)[0][1::]+1
 
-    for i in primes:
-        factors = range(i,limitn, i)
-        for f in factors[1:]:
-            primes[f] = False
-    return [i for i in primes if primes[i]==True]
 
 # ** Do not modify code below this line.
 

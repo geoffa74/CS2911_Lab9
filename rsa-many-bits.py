@@ -225,7 +225,7 @@ def create_keys():
     p = 4
     q = 4
 
-    primes = primesfrom2to(MAX_PRIME)
+    primes = primesfrom3to(MAX_PRIME)
     print(MIN_PRIME)
     while((not is_prime(p)) or ((p-1)%PUBLIC_EXPONENT) == 0):
         p = random.randint(int(MIN_PRIME), int(MAX_PRIME))
