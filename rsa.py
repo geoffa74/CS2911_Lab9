@@ -21,7 +21,7 @@ import numpy
 # Use these named constants as you write your code
 MAX_PRIME = 0b11111111  # The maximum value a prime number can have
 MIN_PRIME = 0b11000001  # The minimum value a prime number can have 
-PUBLIC_EXPONENT = 65537  # The default public exponent
+PUBLIC_EXPONENT = 17  # The default public exponent
 
 
 #
@@ -269,7 +269,7 @@ def break_key(pub):
     q = 1
 
     #Brute force attack n, finding the original p and q
-    primes = primesfrom2to(n)
+    primes = primesfrom3to(n)
     for first in primes:
         p = first
         for second in primes:
@@ -304,10 +304,10 @@ def is_prime(n):
 
 def primesfrom3to(n):
     """ Returns a array of primes, 3 <= p < n """
-    sieve = numpy.ones(n/2, dtype=numpy.bool)
+    sieve = numpy.ones(round(n/2), dtype=numpy.bool)
     for i in range(3,int(n**0.5)+1,2):
-        if sieve[i/2]:
-            sieve[i*i/2::i] = False
+        if sieve[round(i/2)]:
+            sieve[round(i*i/2)::i] = False
     return 2*numpy.nonzero(sieve)[0][1::]+1
 
 

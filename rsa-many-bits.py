@@ -17,6 +17,7 @@ import random
 import sys
 import math
 import numpy
+import time
 
 BITS_PER_HEX_DIGIT = 4 # binary digits per hex digit -- always 4
 BIT_LENGTH = 16  # "B" in the lab handout. Length of n in bits
@@ -212,7 +213,7 @@ def compute_checksum(string):
 # Do not modify code above this line
 # ---------------------------------------
 
-#
+
 # Create the public and private keys.
 #
 # Returns the keys as a three-tuple:
@@ -226,7 +227,6 @@ def create_keys():
     q = 4
 
     primes = primesfrom3to(MAX_PRIME)
-    print(MIN_PRIME)
     while((not is_prime(p)) or ((p-1)%PUBLIC_EXPONENT) == 0):
         p = random.randint(int(MIN_PRIME), int(MAX_PRIME))
 
@@ -274,7 +274,7 @@ def break_key(pub):
     q = 1
 
     #Brute force attack n, finding the original p and q
-    primes = primesfrom2to(n)
+    primes = primesfrom3to(n)
     for first in primes:
         p = first
         for second in primes:
@@ -309,10 +309,10 @@ def is_prime(n):
 
 def primesfrom3to(n):
     """ Returns a array of primes, 3 <= p < n """
-    sieve = numpy.ones(n/2, dtype=numpy.bool)
-    for i in xrange(3,int(n**0.5)+1,2):
-        if sieve[i/2]:
-            sieve[i*i/2::i] = False
+    sieve = numpy.ones(round(n/2), dtype=numpy.bool)
+    for i in range(3,int(n**0.5)+1,2):
+        if sieve[round(i/2)]:
+            sieve[round(i*i/2)::i] = False
     return 2*numpy.nonzero(sieve)[0][1::]+1
 
 
